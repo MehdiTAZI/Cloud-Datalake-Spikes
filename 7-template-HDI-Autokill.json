@@ -1,0 +1,215 @@
+{
+    "$schema": "http://schema.manaspikeent.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "contentVersion": "0.9.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the HDInsight cluster to create."
+            }
+        },
+        "clusterLoginUserName": {
+            "type": "string",
+            "defaultValue": "admin",
+            "metadata": {
+                "description": "These credentials can be used to submit jobs to the cluster and to log into cluster dashboards."
+            }
+        },
+        "clusterLoginPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+            }
+        },
+        "location": {
+            "type": "string",
+            "defaultValue": "westeurope",
+            "metadata": {
+                "description": "The location where all azure resources will be deployed."
+            }
+        },
+        "clusterVersion": {
+            "type": "string",
+            "defaultValue": "3.6",
+            "metadata": {
+                "description": "HDInsight cluster version."
+            }
+        },
+        "clusterWorkerNodeCount": {
+            "type": "int",
+            "defaultValue": 4,
+            "metadata": {
+                "description": "The number of nodes in the HDInsight cluster."
+            }
+        },
+        "clusterKind": {
+            "type": "string",
+            "defaultValue": "HADOOP",
+            "metadata": {
+                "description": "The type of the HDInsight cluster to create."
+            }
+        },
+        "sshUserName": {
+            "type": "string",
+            "defaultValue": "sshuser",
+            "metadata": {
+                "description": "These credentials can be used to remotely access the cluster."
+            }
+        },
+        "sshPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password must be at least 10 characters in length and must contain at least one digit, one non-alphanumeric character, and one upper or lower case letter."
+            }
+        },
+        "hiveUserName": {
+            "type": "string",
+            "metadata": {
+                "description": "These credentials can be used to remotely access hive."
+            }
+        },
+        "hivePassword": {
+            "type": "securestring"
+        },
+        "oozieUserName": {
+            "type": "string",
+            "metadata": {
+                "description": "These credentials can be used to remotely access hive."
+            }
+        },
+        "ooziePassword": {
+            "type": "securestring"
+        },
+        "identityCertificate": {
+            "type": "securestring"
+        },
+        "identityCertificatePassword": {
+            "type": "securestring"
+        }
+    },
+    "resources": [
+        {
+            "apiVersion": "2015-03-01-preview",
+            "name": "[parameters('clusterName')]",
+            "type": "Microsoft.HDInsight/clusters",
+            "location": "[parameters('location')]",
+            "dependsOn": [],
+            "properties": {
+                "clusterVersion": "[parameters('clusterVersion')]",
+                "osType": "Linux",
+                "tier": "standard",
+                "clusterDefinition": {
+                    "kind": "[parameters('clusterKind')]",
+                    "componentVersion": {
+                        "Hadoop": "2.7"
+                    },
+                    "configurations": {
+                        "gateway": {
+                            "restAuthCredential.isEnabled": true,
+                            "restAuthCredential.username": "[parameters('clusterLoginUserName')]",
+                            "restAuthCredential.password": "[parameters('clusterLoginPassword')]"
+                        },
+                        "core-site": {
+                            "fs.defaultFS": "adl://home",
+                            "dfs.adls.home.hostname": "spikedlk.azuredatalakestore.net",
+                            "dfs.adls.home.mountpoint": "/clusters/spikehdi/"
+                        },
+                        "hive-site": {
+                            "javax.jdo.option.ConnectionDriverName": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+                            "javax.jdo.option.ConnectionURL": "jdbc:sqlserver://spikedatabaseserver.database.windows.net;database=hivemetastore;encrypt=true;trustServerCertificate=true;create=false;loginTimeout=300",
+                            "javax.jdo.option.ConnectionUserName": "[parameters('hiveUserName')]",
+                            "javax.jdo.option.ConnectionPassword": "[parameters('hivePassword')]"
+                        },
+                        "hive-env": {
+                            "hive_database": "Existing MSSQL Server database with SQL authentication",
+                            "hive_database_name": "hivemetastore",
+                            "hive_database_type": "mssql",
+                            "hive_existing_mssql_server_database": "hivemetastore",
+                            "hive_existing_mssql_server_host": "spikedatabaseserver.database.windows.net",
+                            "hive_hostname": "spikedatabaseserver.database.windows.net"
+                        },
+                        "oozie-site": {
+                            "oozie.service.JPAService.jdbc.driver": "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+                            "oozie.service.JPAService.jdbc.url": "jdbc:sqlserver://spikedatabaseserver.database.windows.net;database=ooziestore;encrypt=true;trustServerCertificate=true;create=false;loginTimeout=300",
+                            "oozie.service.JPAService.jdbc.username": "[parameters('oozieUserName')]",
+                            "oozie.service.JPAService.jdbc.password": "[parameters('ooziePassword')]",
+                            "oozie.db.schema.name": "oozie"
+                        },
+                        "oozie-env": {
+                            "oozie_database": "Existing MSSQL Server database with SQL authentication",
+                            "oozie_database_name": "ooziestore",
+                            "oozie_database_type": "mssql",
+                            "oozie_existing_mssql_server_database": "ooziestore",
+                            "oozie_existing_mssql_server_host": "spikedatabaseserver.database.windows.net",
+                            "oozie_hostname": "spikedatabaseserver.database.windows.net"
+                        },
+                        "clusterIdentity": {
+                            "clusterIdentity.applicationId": "c2931d40-9792-4d34-ab67-a9606d57c819",
+                            "clusterIdentity.certificate": "[parameters('identityCertificate')]",
+                            "clusterIdentity.aadTenantId": "https://login.windows.net/010f2c07-3f47-45a1-bc73-1caa57e73821",
+                            "clusterIdentity.resourceUri": "https://datalake.azure.net/",
+                            "clusterIdentity.certificatePassword": "[parameters('identityCertificatePassword')]"
+                        }
+                    }
+                },
+                "storageProfile": {
+                    "storageaccounts": []
+                },
+                "computeProfile": {
+                    "roles": [
+                        {
+                            "autoScale": null,
+                            "name": "headnode",
+                            "minInstanceCount": 1,
+                            "targetInstanceCount": 2,
+                            "hardwareProfile": {
+                                "vmSize": "Standard_D12_V2"
+                            },
+                            "osProfile": {
+                                "linuxOperatingSystemProfile": {
+                                    "username": "[parameters('sshUserName')]",
+                                    "password": "[parameters('sshPassword')]"
+                                }
+                            },
+                            "virtualNetworkProfile": null,
+                            "scriptActions": []
+                        },
+                        {
+                            "autoScale": null,
+                            "name": "workernode",
+                            "targetInstanceCount": 4,
+                            "hardwareProfile": {
+                                "vmSize": "Standard_D4_V2"
+                            },
+                            "osProfile": {
+                                "linuxOperatingSystemProfile": {
+                                    "username": "[parameters('sshUserName')]",
+                                    "password": "[parameters('sshPassword')]"
+                                }
+                            },
+                            "virtualNetworkProfile": null,
+                            "scriptActions": []
+                        },
+                        {
+                            "autoScale": null,
+                            "name": "zookeepernode",
+                            "minInstanceCount": 1,
+                            "targetInstanceCount": 3,
+                            "hardwareProfile": {
+                                "vmSize": "Small"
+                            },
+                            "osProfile": {
+                                "linuxOperatingSystemProfile": {
+                                    "username": "[parameters('sshUserName')]",
+                                    "password": "[parameters('sshPassword')]"
+                                }
+                            },
+                            "virtualNetworkProfile": null,
+                            "scriptActions": []
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
