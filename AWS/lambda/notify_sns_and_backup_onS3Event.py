@@ -3,9 +3,6 @@ import urllib.parse
 import boto3
 
 
-#Notify an SNS TOPIC ( SMS + EMAIL ) and backup the file
-
-
 # S3 client to 
 s3 = boto3.client('s3')
 
