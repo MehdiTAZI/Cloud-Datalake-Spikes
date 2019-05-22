@@ -14,4 +14,4 @@
 
 8 - Use Lambda Proxy integration
 
-9 - configure timeout to 50 000
+9 - configure timeout to 29 000
