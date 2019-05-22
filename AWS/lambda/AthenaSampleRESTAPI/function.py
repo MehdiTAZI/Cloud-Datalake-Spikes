@@ -8,11 +8,11 @@ def lambda_handler(event, context):
     RUNNING_CONST = "RUNNING"
     
     # AWS services variables
-    bucket = "mehdiengie"
+    bucket = "myBucket"
     athena_output_prefix = "athena_output/"
     
-    table = "jsontable"
-    database = "mehdi"
+    table = "myTable"
+    database = "myDatabase"
     
     query_sample = "SELECT * FROM "+ table + " limit 10;"
     s3_athena_output = "s3://" + bucket + "/" + athena_output_prefix
