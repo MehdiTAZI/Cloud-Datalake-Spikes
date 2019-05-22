@@ -11,3 +11,7 @@
 6 - Create the following HTTP lambda function as described in the function.py
 
 7 - Configure AMAZON API GATEWAY to expose the rest web api
+
+8 - Use Lambda Proxy integration
+
+9 - configure timeout to 50 000
