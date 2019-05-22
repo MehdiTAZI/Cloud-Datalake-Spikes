@@ -11,3 +11,5 @@ Notify an SNS TOPIC ( SMS + EMAIL ) and backup the file according to a prefix
 6 - Check that on that the trigger on S3 is activated
 
 7 - Copy / Past the lambda function
+
+8 - You can test using the TestEvent Lambda functionality
