@@ -9,3 +9,5 @@
 5 - put as a the handler lambda_function.lambda_handler
 
 6 - Create the following HTTP lambda function as described in the function.py
+
+7 - Configure AMAZON API GATEWAY to expose the rest web api
